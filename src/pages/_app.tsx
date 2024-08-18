@@ -6,6 +6,7 @@ import { type AppType } from "next/app";
 import { api } from "@/utils/api";
 
 import "@/styles/globals.css";
+import Sidebar from "@/components/Sidebar";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -13,9 +14,11 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <div className={GeistSans.className}>
-        <Component {...pageProps} />
-      </div>
+      <div className="flex"> 
+      <main className="flex-1">
+        <Component {...pageProps} /> 
+      </main>
+    </div>
     </SessionProvider>
   );
 };

@@ -1,28 +1,26 @@
-"use client";
+import Sidebar from "@/components/Sidebar";
 import { useUser } from "@/utils/auth";
-import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const { user, isLoading } = useUser();
+  const router = useRouter();
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   if (!user) {
+    router.push("/login")
     return (
-      <div>
-        <p>Please log in to view the dashboard.</p>
-        {/* Link to your login page */}
-      </div>
+      <></>
     );
   }
 
   return (
-    <div>
-      <h1>Welcome to the Dashboard, {user.name || user.email}!</h1>
-      {/* ... your protected dashboard content ... */}
-      <button onClick={() => signOut()}>Log Out</button>
+    <div className="flex">
+      <Sidebar/>
+      <h1>Welcome to the Dashboard, {user.email}!</h1>
     </div>
   );
 }
