@@ -65,4 +65,36 @@ export const projectRouter = createTRPCRouter({
       });
       return { success: true };
     }),
+  addMember: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        userId: z.string(),
+        role: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const existingMember = await ctx.prisma.projectMember.findUnique({
+        where: {
+          projectId_userId: {
+            projectId: input.projectId,
+            userId: input.userId,
+          },
+        },
+      });
+
+      if (existingMember) {
+        throw new Error("User is already a member of this project.");
+      }
+
+      const newMember = await ctx.prisma.projectMember.create({
+        data: {
+          projectId: input.projectId,
+          userId: input.userId,
+          role: input.role || "Member",
+        },
+      });
+
+      return newMember;
+    }),
 });
