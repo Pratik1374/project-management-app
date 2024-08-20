@@ -100,4 +100,34 @@ export const taskRouter = createTRPCRouter({
       });
       return updatedTask;
     }),
+
+  getMyTasks: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+
+    const tasks = await ctx.prisma.task.findMany({
+      where: {
+        assignedToId: userId,
+      },
+      include: {
+        project: {
+          include: {
+            owner: true,
+          },
+        },
+      },
+      orderBy: [{ project: { name: "asc" } }, { dueDate: "asc" }],
+    });
+
+    const sortedTasks = [...tasks].sort((a, b) => {
+      if (a.project.ownerId === userId && b.project.ownerId !== userId) {
+        return -1;
+      } else if (a.project.ownerId !== userId && b.project.ownerId === userId) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    return sortedTasks;
+  }),
 });

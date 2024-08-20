@@ -73,6 +73,16 @@ const Sidebar: React.FC = () => {
                   ))}
                 </ul>
               </li>
+              <li>
+                <Link
+                  href="/mytasks"
+                  className={`block rounded-md px-4 py-2 hover:bg-gray-700 ${
+                    pathname === "/mytasks" ? "bg-gray-900" : ""
+                  }`}
+                >
+                  My Tasks
+                </Link>
+              </li>
             </ul>
           </nav>
 

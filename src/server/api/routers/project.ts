@@ -31,6 +31,13 @@ export const projectRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const project = await ctx.prisma.project.findUnique({
         where: { id: input.projectId },
+        include: {
+          members: {
+            include: {
+              user: true, 
+            },
+          },
+        },
       });
       if (!project || project.ownerId !== ctx.session.user.id) {
         throw new Error("Project not found or you do not have access.");
@@ -65,6 +72,7 @@ export const projectRouter = createTRPCRouter({
       });
       return { success: true };
     }),
+
   addMember: protectedProcedure
     .input(
       z.object({
@@ -96,5 +104,21 @@ export const projectRouter = createTRPCRouter({
       });
 
       return newMember;
+    }),
+
+    getProjectMembers: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const members = await ctx.prisma.projectMember.findMany({
+        where: { projectId: input.projectId },
+        include: { user: true },
+      });
+
+      return members.map((member) => ({
+        id: member.userId,
+        email: member.user.email,
+        role: member.role,
+        name: member.user.name || "Unknown User",
+      }));
     }),
 });

@@ -11,7 +11,7 @@ export default async function handler(
   }
 
   try {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
 
     if (!email || !password) {
       return res
@@ -29,7 +29,7 @@ export default async function handler(
     const hashedPassword = await hash(password, 10);
 
     const newUser = await prisma.user.create({
-      data: { email, password: hashedPassword },
+      data: { email, password: hashedPassword, name },
     });
 
     res

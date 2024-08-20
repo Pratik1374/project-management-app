@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/utils/auth";
-import { Input } from "postcss";
-import InputComponent from "../InputCompoent";
+import InputComponent from "../InputCompoent"; 
 
 export default function SignupForm() {
   const router = useRouter();
+  const [name, setName] = useState(""); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [signupError, setSignupError] = useState<string | null>(null);
@@ -16,8 +16,8 @@ export default function SignupForm() {
     setSignupError(null);
 
     try {
-      if (!email || !password) {
-        setSignupError("Email and password are required");
+      if (!name || !email || !password) {
+        setSignupError("Name, email, and password are required");
         return;
       }
 
@@ -31,12 +31,12 @@ export default function SignupForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password }),
       });
 
       if (res.ok) {
-        await signIn("credentials", {
-          email,
+        await signIn("credentials", { 
+          email, 
           password,
           redirect: false,
         });
@@ -53,6 +53,18 @@ export default function SignupForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+
+      {/* Name Input */}
+      <InputComponent
+        label="Name"
+        type="text"
+        id="name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
+        error={signupError && signupError.includes("name") ? signupError : undefined} 
+      />
+
       <InputComponent
         label="Email"
         type="email"
@@ -78,7 +90,9 @@ export default function SignupForm() {
             : undefined
         }
       />
+
       {signupError && <p className="text-xs text-red-500">{signupError}</p>}
+
       <button
         type="submit"
         className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
