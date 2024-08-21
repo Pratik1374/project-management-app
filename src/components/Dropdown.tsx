@@ -48,7 +48,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       <button
         onClick={toggleDropdown}
         type="button"
-        className="w-full rounded-md bg-gray-800 px-4 py-2 text-left text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="flex w-full rounded-md bg-gray-800 px-4 py-2 text-left text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       >
         {options.find((opt) => opt.value === value)?.label ||
           "Select an option"}

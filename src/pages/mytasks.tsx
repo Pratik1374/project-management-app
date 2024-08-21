@@ -14,7 +14,7 @@ const MyTasks: React.FC = () => {
   const [taskStatuses, setTaskStatuses] = useState<
     Record<string, Task["status"]>
   >({});
-
+  const { mutate } = api.task.updateTaskStatus.useMutation();
   const userId = useUser()?.user?.id;
 
   if (isLoading) {
@@ -42,8 +42,6 @@ const MyTasks: React.FC = () => {
       return a.project.name.localeCompare(b.project.name);
     }
   });
-
-  const { mutate } = api.task.updateTaskStatus.useMutation();
 
   const handleStatusChange = async (
     taskId: string,
@@ -96,6 +94,11 @@ const MyTasks: React.FC = () => {
             <p className="mt-2 text-gray-300">
               {task.description || "No description"}
             </p>
+            {task.priority && (
+              <p>
+                Priority: <span className="font-semibold">{task.priority}</span>
+              </p>
+            )}
           </div>
         ))}
       </main>

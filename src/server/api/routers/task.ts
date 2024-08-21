@@ -10,6 +10,7 @@ export const taskRouter = createTRPCRouter({
         description: z.string().optional(),
         dueDate: z.date().optional(),
         assignedToId: z.string().nullable().optional(),
+        priority: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

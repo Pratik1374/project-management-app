@@ -4,9 +4,13 @@ import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import InputComponent from "@/components/InputCompoent";
 import Dropdown from "@/components/Dropdown";
+import { useUser } from "@/utils/auth";
+
+type TaskPriority = "High" | "Medium" | "Low";
 
 const ProjectDetails: React.FC = () => {
   const router = useRouter();
+  const { user: authUser, isLoading } = useUser();
   const { id: projectId } = router.query;
   const { data: project, isLoading: isProjectLoading } =
     api.project.getProjectById.useQuery(
@@ -38,8 +42,12 @@ const ProjectDetails: React.FC = () => {
     string | undefined
   >(undefined);
 
+  const [newTaskPriority, setNewTaskPriority] =
+    useState<TaskPriority>("Medium");
+
   const { mutate: addTask, isPending: isAddingTask } =
     api.task.createTask.useMutation();
+
   const handleAddTask = () => {
     if (projectId) {
       addTask({
@@ -48,14 +56,19 @@ const ProjectDetails: React.FC = () => {
         dueDate: newTaskDueDate ? new Date(newTaskDueDate) : undefined,
         projectId: projectId as string,
         assignedToId: newTaskAssignedTo,
+        priority: newTaskPriority,
       });
+
       setNewTaskTitle("");
       setNewTaskDescription("");
-      setNewTaskDueDate("");
+      setNewTaskDueDate(undefined);
       setNewTaskAssignedTo(undefined);
+      setNewTaskPriority("Medium");
+
       refetchTasks();
     }
   };
+
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [newMemberRole, setNewMemberRole] = useState("");
   const { data: user, isLoading: isUserLoading } =
@@ -83,11 +96,22 @@ const ProjectDetails: React.FC = () => {
       }
     }
   };
+
   if (isProjectLoading || isTasksLoading || isMembersLoading) {
     return <div className="text-gray-100">Loading...</div>;
   }
+
   if (!project) {
     return <div className="text-gray-100">Project not found</div>;
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!authUser) {
+    router.push("/login");
+    return <></>;
   }
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100">
@@ -132,6 +156,18 @@ const ProjectDetails: React.FC = () => {
                   }
                 </p>
               )}
+              {task.priority && (
+                <p>
+                  Priority:{" "}
+                  <span className="font-semibold">{task.priority}</span>
+                </p>
+              )}
+              {task.status && (
+                <p>
+                  Status:{" "}
+                  <span className="font-semibold">{task.status}</span>
+                </p>
+              )}
             </li>
           ))}
         </ul>
@@ -167,12 +203,6 @@ const ProjectDetails: React.FC = () => {
             onChange={(e) => setNewTaskDueDate(e.target.value)}
           />
           <div>
-            <label
-              htmlFor="assignedTo"
-              className="block text-sm font-medium text-gray-100"
-            >
-              Assign To:
-            </label>
             <Dropdown
               label="Assign To"
               options={[
@@ -184,6 +214,18 @@ const ProjectDetails: React.FC = () => {
               ]}
               value={newTaskAssignedTo || ""}
               onChange={(value) => setNewTaskAssignedTo(value)}
+            />
+          </div>
+          <div>
+            <Dropdown
+              label="Priority"
+              options={[
+                { value: "High", label: "High" },
+                { value: "Medium", label: "Medium" },
+                { value: "Low", label: "Low" },
+              ]}
+              value={newTaskPriority}
+              onChange={(value) => setNewTaskPriority(value as TaskPriority)}
             />
           </div>
           <button
