@@ -53,12 +53,15 @@ export const taskRouter = createTRPCRouter({
         description: z.string().optional(),
         dueDate: z.date().optional(),
         assignedToId: z.string().nullable().optional(),
+        priority: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const { taskId, ...rest } = input;
+
       const updatedTask = await ctx.prisma.task.update({
-        where: { id: input.taskId },
-        data: input,
+        where: { id: taskId },
+        data: rest,
       });
       return updatedTask;
     }),

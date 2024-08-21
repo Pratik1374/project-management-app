@@ -7,7 +7,10 @@ import { api } from "@/utils/api";
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
-  const { data: projects } = api.project.getProjects.useQuery();
+  const { data: projects } = api.project.getProjects.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+    retry: false
+  });
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleSidebar = () => {
