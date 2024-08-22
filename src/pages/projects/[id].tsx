@@ -96,7 +96,7 @@ const ProjectDetails: React.FC = () => {
         refetchTasks();
         alert("Member removed successfully!");
       },
-    },);
+    });
   const [isDeletingMember, setIsDeletingMember] = useState("");
 
   const handleRemoveMember = async (memberId: string) => {
@@ -182,25 +182,33 @@ const ProjectDetails: React.FC = () => {
               Add New Member
             </button>
           </div>
-          <ul className="mb-6 list-disc pl-5">
-            {members?.map((member) => (
-              <li
-                key={member.id}
-                className="mb-2 flex items-center justify-between"
-              >
-                <p className="text-lg font-medium">
-                  {member.name} ({member.email}) - {member.role}
-                </p>
-                <button
-                  className={`delete-button remove ${isDeletingMember == member.id ? "deleting" : ""}`}
-                  onClick={() => handleRemoveMember(member.id)}
-                  disabled={isDeletingMember == member.id}
+          {members?.length == 0 ? (
+            <p className="w-full text-center text-sm text-gray-400">
+              No members added yet.
+            </p>
+          ) : (
+            <ul className="mb-6 list-disc pl-5">
+              {members?.map((member) => (
+                <li
+                  key={member.id}
+                  className="mb-2 flex items-center justify-between"
                 >
-                  {isDeletingMember == member.id ? "Removing..." : "Remove Member"}
-                </button>
-              </li>
-            ))}
-          </ul>
+                  <p className="text-lg font-medium">
+                    {member.name} ({member.email}) - {member.role}
+                  </p>
+                  <button
+                    className={`delete-button remove ${isDeletingMember == member.id ? "deleting" : ""}`}
+                    onClick={() => handleRemoveMember(member.id)}
+                    disabled={isDeletingMember == member.id}
+                  >
+                    {isDeletingMember == member.id
+                      ? "Removing..."
+                      : "Remove Member"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         {/* Tasks Card */}
@@ -211,52 +219,60 @@ const ProjectDetails: React.FC = () => {
               Add New Task
             </button>
           </div>
-          <ul className="mb-6 list-disc">
-            {tasks?.map((task) => (
-              <Card key={`task_${task.id}`}>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <li key={task.id} className="mb-2">
-                      <h3 className="text-xl font-medium">{task.title}</h3>
-                      <p>{task.description || "No description"}</p>
-                      <p>
-                        Due Date:{" "}
-                        {task.dueDate
-                          ? new Date(task.dueDate).toLocaleDateString()
-                          : "Not set"}
-                      </p>
-                      {task.assignedToId && (
+          {tasks?.length == 0 ? (
+            <p className="w-full text-center text-sm text-gray-400">
+              No taks added yet.
+            </p>
+          ) : (
+            <ul className="mb-6 list-disc">
+              {tasks?.map((task) => (
+                <Card key={`task_${task.id}`}>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <li key={task.id} className="mb-2">
+                        <h3 className="text-xl font-medium">{task.title}</h3>
+                        <p>{task.description || "No description"}</p>
                         <p>
-                          Assigned to:{" "}
-                          {members?.find(
-                            (member) => member.id === task.assignedToId,
-                          )?.name || "Unknown User"}
+                          Due Date:{" "}
+                          {task.dueDate
+                            ? new Date(task.dueDate).toLocaleDateString()
+                            : "Not set"}
                         </p>
-                      )}
-                      {task.priority && (
-                        <p>
-                          Priority:{" "}
-                          <span className="font-semibold">{task.priority}</span>
-                        </p>
-                      )}
-                      {task.status && (
-                        <p>
-                          Status:{" "}
-                          <span className="font-semibold">{task.status}</span>
-                        </p>
-                      )}
-                    </li>
+                        {task.assignedToId && (
+                          <p>
+                            Assigned to:{" "}
+                            {members?.find(
+                              (member) => member.id === task.assignedToId,
+                            )?.name || "Unknown User"}
+                          </p>
+                        )}
+                        {task.priority && (
+                          <p>
+                            Priority:{" "}
+                            <span className="font-semibold">
+                              {task.priority}
+                            </span>
+                          </p>
+                        )}
+                        {task.status && (
+                          <p>
+                            Status:{" "}
+                            <span className="font-semibold">{task.status}</span>
+                          </p>
+                        )}
+                      </li>
+                    </div>
+                    <button
+                      className="edit-button"
+                      onClick={() => handleEditTask(task.id)}
+                    >
+                      Edit
+                    </button>
                   </div>
-                  <button
-                    className="edit-button"
-                    onClick={() => handleEditTask(task.id)}
-                  >
-                    Edit
-                  </button>
-                </div>
-              </Card>
-            ))}
-          </ul>
+                </Card>
+              ))}
+            </ul>
+          )}
         </Card>
 
         <Modal isOpen={isAddingTaskModalOpen} onClose={handleCloseModal}>

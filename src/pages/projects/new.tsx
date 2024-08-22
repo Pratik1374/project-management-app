@@ -9,8 +9,8 @@ const NewProject: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const createProjectMutation = api.project.createProject.useMutation({
-    onSuccess: () => {
-      router.push("/dashboard");
+    onSuccess: (data) => {
+      router.push(`/projects/${data.id}`);
     },
     onError: (error) => {
       setError(error.message || "Failed to create project. Please try again.");

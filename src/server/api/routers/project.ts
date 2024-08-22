@@ -64,12 +64,26 @@ export const projectRouter = createTRPCRouter({
       return updatedProject;
     }),
 
-  deleteProject: protectedProcedure
+    deleteProject: protectedProcedure
     .input(z.object({ projectId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.prisma.project.delete({
-        where: { id: input.projectId },
+      await ctx.prisma.$transaction(async (prisma) => {
+        //Delete related tasks
+        await prisma.task.deleteMany({
+          where: { projectId: input.projectId },
+        });
+
+        //Delete related project members
+        await prisma.projectMember.deleteMany({
+          where: { projectId: input.projectId },
+        });
+
+        //Finally, delete the project
+        await prisma.project.delete({
+          where: { id: input.projectId },
+        });
       });
+
       return { success: true };
     }),
 
