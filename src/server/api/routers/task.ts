@@ -134,4 +134,41 @@ export const taskRouter = createTRPCRouter({
 
     return sortedTasks;
   }),
+
+  deleteTasksByAssignedUser: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        assignedToId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { projectId, assignedToId } = input;
+
+      const project = await ctx.prisma.project.findUnique({
+        where: { id: projectId },
+        select: {
+          ownerId: true,
+        },
+      });
+
+      if (!project) {
+        throw new Error("Project not found.");
+      }
+
+      if (project.ownerId !== ctx.session.user.id) {
+        throw new Error(
+          "You are not authorized to delete tasks from this project.",
+        );
+      }
+
+      await ctx.prisma.task.deleteMany({
+        where: {
+          projectId,
+          assignedToId,
+        },
+      });
+
+      return { success: true };
+    }),
 });

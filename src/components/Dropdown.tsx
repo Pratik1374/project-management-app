@@ -65,7 +65,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         </svg>
       </button>
       <ul
-        className={`absolute z-10 mt-1 w-full divide-y divide-gray-600 rounded-md bg-gray-700 shadow-lg ${
+        className={`absolute z-10 mt-1 w-full divide-y divide-gray-600 rounded-md bg-gray-700 shadow-lg max-h-[150px] overflow-auto ${
           isOpen ? "block" : "hidden"
         }`}
       >

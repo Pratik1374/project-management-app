@@ -13,3 +13,64 @@ body {
   color: var(--text-color);
   font-family: "Your Font", sans-serif;
 }
+
+.card-title {
+  color: white;
+  font-size: 20px;
+  line-height: 100%;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+.add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background-color: rgb(219, 59, 237);
+  border-radius: 10px;
+  color: white;
+}
+
+.edit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 25px;
+  background-color: rgb(10, 48, 216);
+  border-radius: 10px;
+  color: white;
+}
+
+.submit-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 25px;
+  background-color: rgb(10, 48, 216);
+  border-radius: 10px;
+  color: white;
+}
+
+.submit-button.submitting {
+  background-color: gray;
+}
+
+.delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 25px;
+  background-color: rgb(199, 0, 40);
+  border-radius: 10px;
+  color: white;
+}
+
+.delete-button.remove {
+  background-color: rgb(241, 85, 85);
+}
+
+.delete-button.deleting {
+  background-color: gray;
+}

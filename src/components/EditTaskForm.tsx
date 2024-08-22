@@ -1,5 +1,5 @@
-// components/EditTaskForm.tsx
-import React, { useState } from "react";
+"use client"
+import React, { useEffect, useState } from "react";
 import { api } from "@/utils/api";
 import Dropdown from "./Dropdown";
 import InputComponent from "./InputCompoent";
@@ -17,7 +17,10 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
   onClose,
   onTaskUpdate,
 }) => {
-  const { data: initialTask, isPending, isFetchedAfterMount } = api.task.getTaskById.useQuery(
+  const {
+    data: initialTask,
+    isPending,
+  } = api.task.getTaskById.useQuery(
     { taskId },
     {
       enabled: !!taskId,
@@ -67,16 +70,25 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
     });
   };
 
-  // Fetch project members to populate the "Assign To" dropdown
   const { data: members } = api.project.getProjectMembers.useQuery(
-    { projectId: initialTask?.projectId || ""},
+    { projectId: initialTask?.projectId || "" },
     {
       enabled: !!initialTask?.projectId,
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus: false,
     },
   );
 
-  if (isPending || !isFetchedAfterMount) {
+  useEffect(() => {
+    if (initialTask) {
+      setEditedTaskTitle(initialTask.title || "");
+      setEditedTaskDescription(initialTask.description || "");
+      setEditedTaskDueDate(initialTask.dueDate ? initialTask.dueDate.toISOString().slice(0, 10) : undefined);
+      setEditedTaskAssignedTo(initialTask.assignedToId || "");
+      setEditedTaskPriority(initialTask.priority as TaskPriority);
+    }
+  }, [initialTask]); 
+
+  if (isPending) {
     return <div>Loading task...</div>;
   }
 
@@ -88,7 +100,6 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
       }}
       className="space-y-4"
     >
-      {/* Task Title */}
       <InputComponent
         id="editTaskTitle"
         type="text"
@@ -98,7 +109,6 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
         required
       />
 
-      {/* Task Description */}
       <InputComponent
         id="editTaskDescription"
         type="text"
@@ -108,7 +118,6 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
         placeholder="Optional"
       />
 
-      {/* Due Date */}
       <InputComponent
         id="editTaskDueDate"
         type="date"
@@ -117,7 +126,6 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
         onChange={(e) => setEditedTaskDueDate(e.target.value)}
       />
 
-      {/* Assign To */}
       <Dropdown
         label="Assign To"
         options={[
@@ -131,7 +139,6 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
         onChange={(value) => setEditedTaskAssignedTo(value)}
       />
 
-      {/* Priority */}
       <Dropdown
         label="Priority"
         options={[
@@ -143,13 +150,10 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
         onChange={(value) => setEditedTaskPriority(value as TaskPriority)}
       />
 
-      {/* Save Button */}
       <button
         type="submit"
         disabled={isUpdatingTask}
-        className={`mt-4 w-full rounded p-2 ${
-          isUpdatingTask ? "bg-gray-600" : "bg-blue-600"
-        } text-gray-100`}
+        className={`submit-button ${isUpdatingTask ? "submitting" : ""} `}
       >
         {isUpdatingTask ? "Saving..." : "Save Changes"}
       </button>

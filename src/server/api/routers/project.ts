@@ -34,7 +34,7 @@ export const projectRouter = createTRPCRouter({
         include: {
           members: {
             include: {
-              user: true, 
+              user: true,
             },
           },
         },
@@ -106,7 +106,7 @@ export const projectRouter = createTRPCRouter({
       return newMember;
     }),
 
-    getProjectMembers: protectedProcedure
+  getProjectMembers: protectedProcedure
     .input(z.object({ projectId: z.string() }))
     .query(async ({ ctx, input }) => {
       const members = await ctx.prisma.projectMember.findMany({
@@ -120,5 +120,44 @@ export const projectRouter = createTRPCRouter({
         role: member.role,
         name: member.user.name || "Unknown User",
       }));
+    }),
+
+  removeMember: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        userId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { projectId, userId } = input;
+
+      const project = await ctx.prisma.project.findUnique({
+        where: { id: projectId },
+        select: {
+          ownerId: true,
+        },
+      });
+
+      if (!project) {
+        throw new Error("Project not found.");
+      }
+
+      if (project.ownerId !== ctx.session.user.id) {
+        throw new Error(
+          "You are not authorized to remove members from this project.",
+        );
+      }
+
+      await ctx.prisma.projectMember.delete({
+        where: {
+          projectId_userId: {
+            projectId,
+            userId,
+          },
+        },
+      });
+
+      return { success: true };
     }),
 });
