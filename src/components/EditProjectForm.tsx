@@ -2,6 +2,7 @@
 import { api } from "@/utils/api";
 import { useEffect, useState } from "react";
 import InputComponent from "./InputCompoent";
+import Loader from "./Loader";
 
 interface EditProjectFormProps {
   projectId: string;
@@ -59,11 +60,9 @@ const EditProjectForm: React.FC<EditProjectFormProps> = ({
     }
   }, [initialProject]);
 
-  if (isPending) {
-    return <div>Loading project...</div>;
-  }
-
   return (
+    <>
+    {isPending && <Loader/>}
     <form onSubmit={handleSubmit} className="space-y-4">
       <InputComponent
         id="name"
@@ -88,6 +87,7 @@ const EditProjectForm: React.FC<EditProjectFormProps> = ({
         {isUpdating ? "Updating..." : "Update Project"}
       </button>
     </form>
+    </>
   );
 };
 

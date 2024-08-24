@@ -2,11 +2,19 @@ import { GeistSans } from "geist/font/sans";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { type AppType } from "next/app";
+import { Poppins } from "next/font/google";
 
 import { api } from "@/utils/api";
 
 import "@/styles/globals.css";
-import Sidebar from "@/components/Sidebar";
+import { ToastContainer, Zoom, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -14,11 +22,10 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <div className="flex"> 
-      <main className="flex-1">
-        <Component {...pageProps} /> 
+      <main className={`${poppins.className} flex-1`}>
+        <Component {...pageProps} />
+        <ToastContainer theme="dark" position="top-center" transition={Zoom} />
       </main>
-    </div>
     </SessionProvider>
   );
 };

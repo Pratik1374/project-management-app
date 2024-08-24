@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { api } from "@/utils/api";
+import Sidebar from "@/components/Sidebar";
+import InputComponent from "@/components/InputCompoent";
+import TextareaComponent from "@/components/TextareaComponent";
 
 const NewProject: React.FC = () => {
   const router = useRouter();
@@ -25,49 +28,45 @@ const NewProject: React.FC = () => {
         name,
         description,
       });
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="mb-6 text-2xl font-bold">Create a New Project</h2>
-      <form onSubmit={handleSubmit} className="space-y-4 text-black">
-        <div>
-          <label htmlFor="name" className="mb-2 block font-semibold">
-            Project Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-md border border-gray-300 p-2"
-            required
-          />
-        </div>
+    <div className="flex h-screen flex-1 bg-black text-gray-100">
+      <Sidebar />
+      <main className="mt-5 h-full flex-1 overflow-auto p-6 md:mt-0">
+        <div className="mx-auto max-w-[600px]">
+          <h2 className="mb-6 w-fit text-2xl font-bold">
+            Create a New Project
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-4 text-black">
+            <InputComponent
+              label="Project Name"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
 
-        <div>
-          <label htmlFor="description" className="mb-2 block font-semibold">
-            Description
-          </label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-md border border-gray-300 p-2"
-          />
-        </div>
+            <TextareaComponent
+              label="Description"
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
 
-        <button
-          type="submit"
-          className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          disabled={createProjectMutation.isPending}
-        >
-          {createProjectMutation.isPending ? "Creating..." : "Create Project"}
-        </button>
-      </form>
-      {error && <p className="mt-4 text-red-500">{error}</p>}
+            <button
+              type="submit"
+              className="submit-button"
+              disabled={createProjectMutation.isPending}
+            >
+              {createProjectMutation.isPending
+                ? "Creating..."
+                : "Create Project"}
+            </button>
+          </form>
+        </div>
+      </main>
     </div>
   );
 };

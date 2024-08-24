@@ -12,6 +12,7 @@ import EditProjectForm from "@/components/EditProjectForm";
 import AddMemberForm from "@/components/AddMemberForm";
 import AddTaskForm from "@/components/AddTaskForm";
 import { string } from "zod";
+import Loader from "@/components/Loader";
 
 type TaskPriority = "High" | "Medium" | "Low";
 type TaskStatus = "ToDo" | "InProgress" | "Completed";
@@ -128,7 +129,7 @@ const ProjectDetails: React.FC = () => {
   };
 
   if (isProjectLoading || isTasksLoading || isMembersLoading) {
-    return <div className="text-gray-100">Loading...</div>;
+    return <Loader />;
   }
 
   if (!project) {
@@ -136,7 +137,7 @@ const ProjectDetails: React.FC = () => {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   if (!authUser) {
@@ -144,9 +145,9 @@ const ProjectDetails: React.FC = () => {
     return <></>;
   }
   return (
-    <div className="flex h-screen bg-gray-900 text-gray-100">
+    <div className="flex h-screen bg-black text-gray-100">
       <Sidebar />
-      <main className="h-full flex-1 overflow-auto p-6">
+      <main className="mt-5 h-full flex-1 overflow-auto p-6 md:mt-0">
         {/* Project Details Card */}
         <Card title={"Project"}>
           <div className="flex items-start justify-between">

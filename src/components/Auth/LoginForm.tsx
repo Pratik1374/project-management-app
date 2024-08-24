@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/utils/auth";
 import InputComponent from "../InputCompoent";
+import { toast } from "react-toastify";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function LoginForm() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoginError(null);
+    setLoginError(null); 
 
     try {
       const result = await signIn("credentials", {
@@ -22,13 +23,16 @@ export default function LoginForm() {
       });
 
       if (!result?.error) {
-        router.push("/dashboard");
+        toast.success("Login successful!",{autoClose: 1000}); 
+        router.push("/dashboard"); 
       } else {
+        toast.error("Invalid credentials.");
         setLoginError(result.error);
       }
     } catch (error) {
       console.error("Login error:", error);
       setLoginError("An error occurred during login.");
+      toast.error("An error occurred during login."); 
     }
   };
 
@@ -57,7 +61,6 @@ export default function LoginForm() {
           loginError && loginError.includes("password") ? loginError : undefined
         }
       />
-      {loginError && <p className="text-xs text-red-500">{loginError}</p>}
       <button
         type="submit"
         className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
