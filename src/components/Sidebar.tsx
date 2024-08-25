@@ -4,6 +4,8 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { api } from "@/utils/api";
+import { toast } from "react-toastify";
+import { useUser } from "@/utils/auth";
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
@@ -17,6 +19,7 @@ const Sidebar: React.FC = () => {
     },
   );
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useUser();
 
   const closeSidebar = () => {
     setIsOpen(false);
@@ -49,11 +52,11 @@ const Sidebar: React.FC = () => {
       onSuccess: () => {
         refetch();
         router.push("/dashboard");
-        alert("Project deleted successfully!");
+        toast.success("Project deleted successfully!");
       },
       onError: (error) => {
         console.error("Error deleting project:", error);
-        alert("Failed to delete project. Please try again later.");
+        toast.error("Failed to delete project. Please try again later.");
       },
     });
 
@@ -73,7 +76,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <>
-      <div className="absolute h-fit w-fit top-2 left-2 z-50 bg-transparent md:hidden">
+      <div className="absolute left-2 top-2 z-50 h-fit w-fit bg-transparent md:hidden">
         <button onClick={() => setIsOpen(true)} className="text-white">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -95,11 +98,24 @@ const Sidebar: React.FC = () => {
       <div className="md:w-64">
         <aside
           ref={sidebarRef}
-          className={`fixed left-0 top-0 z-40 h-screen transform border-0 border-r border-solid border-gray-400 bg-black text-white transition-transform duration-300 ease-in-out md:relative ${
+          className={`fixed left-0 top-0 z-40 h-screen transform border-0 border-r border-solid border-gray-400 bg-black text-[12px] text-white transition-transform duration-300 ease-in-out md:relative md:text-[14px] ${
             isOpen ? "translate-x-0" : "-translate-x-full"
           } md:translate-x-0`}
         >
-          <div className="p-6">
+          <div className="p-4 pt-[40px] md:pt-4">
+            <div className="mb-6 flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 md:h-10 md:w-10 rounded-full border border-gray-200 text-gray-200"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-3.33 0-6 2.69-6 6v1h12v-1c0-3.31-2.67-6-6-6z" />
+              </svg>
+              <span className="ml-3 text-[14px] md:text-lg font-medium">
+                {user?.name || "User"}
+              </span>
+            </div>
             <nav>
               <ul className="space-y-2">
                 <li>
@@ -176,7 +192,7 @@ const Sidebar: React.FC = () => {
 
             <button
               onClick={() => {
-                signOut();
+                signOut({ redirect: true, callbackUrl: "/" });
                 router.push("/");
               }}
               className="mt-8 w-full rounded-md bg-red-800 px-4 py-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"

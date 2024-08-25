@@ -13,6 +13,7 @@ import AddMemberForm from "@/components/AddMemberForm";
 import AddTaskForm from "@/components/AddTaskForm";
 import { string } from "zod";
 import Loader from "@/components/Loader";
+import { toast } from "react-toastify";
 
 type TaskPriority = "High" | "Medium" | "Low";
 type TaskStatus = "ToDo" | "InProgress" | "Completed";
@@ -95,7 +96,7 @@ const ProjectDetails: React.FC = () => {
       onSuccess: () => {
         refetchMembers();
         refetchTasks();
-        alert("Member removed successfully!");
+        toast.success("Member removed successfully!");
       },
     });
   const [isDeletingMember, setIsDeletingMember] = useState("");
@@ -120,7 +121,7 @@ const ProjectDetails: React.FC = () => {
           });
         } catch (error) {
           console.error("Error removing member:", error);
-          alert("Error removing member. Please try again.");
+          toast.error("Error removing member. Please try again.");
         } finally {
           setIsDeletingMember("");
         }
@@ -147,14 +148,18 @@ const ProjectDetails: React.FC = () => {
   return (
     <div className="flex h-screen bg-black text-gray-100">
       <Sidebar />
-      <main className="mt-5 h-full flex-1 overflow-auto p-6 md:mt-0">
+      <main className="mt-[30px] h-full flex-1 overflow-auto p-4 md:mt-0 md:p-6">
         {/* Project Details Card */}
         <Card title={"Project"}>
           <div className="flex items-start justify-between">
-            <div>
+            <div className="w-full">
               <p className="mb-2">Name: {project.name || "No name"}</p>
               <p className="mb-2">
                 Description: {project.description || "No description"}
+              </p>
+              <p className="text-gray-300">Description</p>
+              <p className="w-full overflow-y-hidden overflow-x-clip rounded-md bg-gray-700 p-2">
+                {project.description || "No description"}
               </p>
               <p className="mb-4">
                 Created at:{" "}
@@ -177,7 +182,7 @@ const ProjectDetails: React.FC = () => {
 
         {/* Project Members Card */}
         <Card>
-          <div className="mb-2 flex w-full justify-between">
+          <div className="mb-2 flex w-full items-center justify-between">
             <h2 className="card-title">Project Members</h2>
             <button className="add-button" onClick={handleOpenAddMemberModal}>
               Add New Member
@@ -188,33 +193,54 @@ const ProjectDetails: React.FC = () => {
               No members added yet.
             </p>
           ) : (
-            <ul className="mb-6 list-disc pl-5">
-              {members?.map((member) => (
-                <li
-                  key={member.id}
-                  className="mb-2 flex items-center justify-between"
-                >
-                  <p className="text-lg font-medium">
-                    {member.name} ({member.email}) - {member.role}
-                  </p>
-                  <button
-                    className={`delete-button remove ${isDeletingMember == member.id ? "deleting" : ""}`}
-                    onClick={() => handleRemoveMember(member.id)}
-                    disabled={isDeletingMember == member.id}
-                  >
-                    {isDeletingMember == member.id
-                      ? "Removing..."
-                      : "Remove Member"}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <table className="my-6 w-full">
+              <thead>
+                <tr className="bg-gray-700">
+                  <th className="border border-gray-400 px-1 py-1 text-left text-[10px] font-normal md:px-4 md:py-2 md:text-[16px] md:font-semibold">
+                    Name
+                  </th>
+                  <th className="border border-gray-400 px-1 py-1 text-left text-[10px] font-normal md:px-4 md:py-2 md:text-[16px] md:font-semibold">
+                    Email
+                  </th>
+                  <th className="border border-gray-400 px-1 py-1 text-left text-[10px] font-normal md:px-4 md:py-2 md:text-[16px] md:font-semibold">
+                    Role
+                  </th>
+                  <th className="border border-gray-400 px-1 py-1 text-left text-[10px] font-normal md:px-4 md:py-2 md:text-[16px] md:font-semibold"></th>{" "}
+                </tr>
+              </thead>
+              <tbody>
+                {members?.map((member) => (
+                  <tr key={member.id} className="border-b border-gray-300">
+                    <td className="border border-gray-400 px-1 py-1 text-left text-[10px] font-normal md:px-4 md:py-2 md:text-[14px] md:font-semibold">
+                      {member.name}
+                    </td>
+                    <td className="border border-gray-400 px-1 py-1 text-left text-[10px] font-normal md:px-4 md:py-2 md:text-[14px] md:font-semibold">
+                      {member.email}
+                    </td>
+                    <td className="border border-gray-400 px-1 py-1 text-left text-[10px] font-normal md:px-4 md:py-2 md:text-[14px] md:font-semibold">
+                      {member.role}
+                    </td>
+                    <td className="border border-gray-400 px-1 py-1 text-center text-[10px] font-normal md:px-4 md:py-2 md:text-[14px] md:font-semibold">
+                      <button
+                        className={`delete-button ${isDeletingMember == member.id ? "deleting" : ""}`}
+                        onClick={() => handleRemoveMember(member.id)}
+                        disabled={isDeletingMember == member.id}
+                      >
+                        {isDeletingMember == member.id
+                          ? "Removing..."
+                          : "Remove"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </Card>
 
         {/* Tasks Card */}
         <Card>
-          <div className="flex w-full justify-between">
+          <div className="flex w-full items-center justify-between">
             <h2 className="card-title">Tasks</h2>
             <button className="add-button" onClick={handleOpenAddTaskModal}>
               Add New Task
@@ -225,20 +251,35 @@ const ProjectDetails: React.FC = () => {
               No taks added yet.
             </p>
           ) : (
-            <ul className="mb-6 list-disc">
+            <ul className="my-4 list-disc gap-[10px]">
               {tasks?.map((task) => (
-                <Card key={`task_${task.id}`}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <li key={task.id} className="mb-2">
-                        <h3 className="text-xl font-medium">{task.title}</h3>
-                        <p>{task.description || "No description"}</p>
-                        <p>
-                          Due Date:{" "}
-                          {task.dueDate
-                            ? new Date(task.dueDate).toLocaleDateString()
-                            : "Not set"}
-                        </p>
+                <li key={task.id} className="w-full space-y-1">
+                  <Card key={`task_${task.id}`} shadow={false} border>
+                    <div className="flex w-full items-start justify-between">
+                      <div className="w-full flex flex-col gap-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="text-xl font-medium">{task.title}</h3>
+                          <div className="flex gap-3">
+                            <button
+                              className="edit-button"
+                              onClick={() => handleEditTask(task.id)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="delete-button"
+                              onClick={() => handleEditTask(task.id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                        <div className=" flex w-full gap-1">
+                          <p className="text-gray-300">Description: </p>
+                          <p className="w-full overflow-y-hidden overflow-x-clip rounded-md bg-gray-900 p-2">
+                            {task.description || "No description"}
+                          </p>
+                        </div>
                         {task.assignedToId && (
                           <p>
                             Assigned to:{" "}
@@ -261,16 +302,36 @@ const ProjectDetails: React.FC = () => {
                             <span className="font-semibold">{task.status}</span>
                           </p>
                         )}
-                      </li>
+                        <p className="w-full text-right text-gray-400">
+                          {task.dueDate ? (
+                            <>
+                              <span
+                                className={`${
+                                  new Date(task.dueDate).getTime() <
+                                    new Date().setHours(0, 0, 0, 0) &&
+                                  "line-through"
+                                }`}
+                              >
+                                Due Date:{" "}
+                                {new Date(task.dueDate).toLocaleDateString()}
+                              </span>
+                              <>
+                                {new Date(task.dueDate).getTime() <
+                                new Date().setHours(0, 0, 0, 0) ? (
+                                  <span className="ml-1 text-red-500">Due</span>
+                                ) : (
+                                  <></>
+                                )}
+                              </>
+                            </>
+                          ) : (
+                            "Not set"
+                          )}
+                        </p>
+                      </div>
                     </div>
-                    <button
-                      className="edit-button"
-                      onClick={() => handleEditTask(task.id)}
-                    >
-                      Edit
-                    </button>
-                  </div>
-                </Card>
+                  </Card>
+                </li>
               ))}
             </ul>
           )}

@@ -15,13 +15,13 @@ const TextareaComponent: React.FC<TextareaProps> = ({
     <div>
       <label
         htmlFor={rest.id || rest.name}
-        className="block text-sm font-medium text-gray-400"
+        className="block text-[12px] md:text-[14px] font-medium text-gray-400"
       >
         {label}
       </label>
       <textarea
         {...rest}
-        className={`text-white bg-gray-700 p-2 min-h-[150px] max-h-[550px] mt-1 flex w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm overflow-auto ${
+        className={`text-white bg-gray-700 p-2 min-h-[150px] max-h-[350px] mt-1 flex w-full rounded-md border-gray-300 shadow-sm text-[12px] md:text-[14px] overflow-auto ${
           error ? "border-red-500" : ""
         }`}
       />

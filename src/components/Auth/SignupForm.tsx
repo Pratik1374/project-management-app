@@ -2,14 +2,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/utils/auth";
-import InputComponent from "../InputCompoent"; 
+import InputComponent from "../InputCompoent";
+import { toast } from "react-toastify";
+import Link from "next/link";
+import Loader from "../Loader";
 
 export default function SignupForm() {
   const router = useRouter();
-  const [name, setName] = useState(""); 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [signupError, setSignupError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  function isValidEmail(email: string): boolean {
+    const regex =
+      /^[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/;
+    return regex.test(email);
+  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -17,15 +27,21 @@ export default function SignupForm() {
 
     try {
       if (!name || !email || !password) {
-        setSignupError("Name, email, and password are required");
+        toast.error("Name, email, and password are required");
         return;
       }
 
       if (password.length < 6) {
-        setSignupError("Password must be at least 6 characters");
+        toast.error("Password must be at least 6 characters");
         return;
       }
 
+      if (!isValidEmail(email)) {
+        toast.error("Please enter valid email address.");
+        return;
+      }
+
+      setIsLoading(true);
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
@@ -35,25 +51,28 @@ export default function SignupForm() {
       });
 
       if (res.ok) {
-        await signIn("credentials", { 
-          email, 
+        await signIn("credentials", {
+          email,
           password,
           redirect: false,
         });
         router.push("/dashboard");
       } else {
         const errorData = await res.json();
-        setSignupError(errorData.message || "Signup failed. Please try again.");
+        toast.error(errorData.message || "Signup failed. Please try again.");
       }
     } catch (error) {
       setSignupError("An error occurred during signup.");
       console.error("Signup error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-
+    <>
+    {isLoading && <Loader/>}
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
       {/* Name Input */}
       <InputComponent
         label="Name"
@@ -62,7 +81,9 @@ export default function SignupForm() {
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
-        error={signupError && signupError.includes("name") ? signupError : undefined} 
+        error={
+          signupError && signupError.includes("name") ? signupError : undefined
+        }
       />
 
       <InputComponent
@@ -91,14 +112,19 @@ export default function SignupForm() {
         }
       />
 
-      {signupError && <p className="text-xs text-red-500">{signupError}</p>}
-
-      <button
-        type="submit"
-        className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-      >
+      <button type="submit" className="submit-button">
         Sign Up
       </button>
+      <p className="text-center text-sm">
+        Already have an account?{" "}
+        <Link
+          href="/login"
+          className="border-0 border-b border-solid border-blue-600 text-blue-600"
+        >
+          Login here
+        </Link>
+      </p>
     </form>
+    </>
   );
 }

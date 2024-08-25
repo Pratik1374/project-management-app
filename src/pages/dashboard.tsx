@@ -20,7 +20,7 @@ export default function DashboardPage() {
   return (
     <div className="flex">
       <Sidebar/>
-      <main className="h-full flex-1 overflow-auto p-6  mt-5 md:mt-0">
+      <main className="h-full flex-1 overflow-auto p-4 md:p-6 mt-[30px] md:mt-0">
       <h1>Welcome to the Dashboard, {user.email}!</h1>
       </main>
     </div>

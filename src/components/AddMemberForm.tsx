@@ -1,6 +1,7 @@
 import { api } from "@/utils/api";
 import { useState } from "react";
 import InputComponent from "./InputCompoent";
+import { toast } from "react-toastify";
 
 interface AddMemberFormProps {
   projectId: string;
@@ -31,7 +32,14 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
       onSuccess: () => {
         onMemberAdded();
         onClose();
-        alert("Member added successfully!");
+        toast.success("Member added successfully!");
+      },
+      onError: (error) => {
+        if (error.message.includes("already a member")) {
+          toast.error("User is already a member of this project.");
+        } else {
+          toast.error("An error occurred while adding the member.");
+        }
       },
     });
 
@@ -47,10 +55,10 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
         });
       } catch (error) {
         console.error("Error adding member:", error);
-        alert("Error adding member. Please try again.");
+        toast.error("Error adding member. Please try again.");
       }
     } else {
-      alert("User not found!");
+      toast.error("User not found!");
     }
   };
 

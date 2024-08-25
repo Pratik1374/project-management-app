@@ -13,7 +13,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-auto"
       onClick={(e) => {
         // Close the modal when clicking outside the modal content
         if (e.target === e.currentTarget) {
@@ -21,7 +21,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
         }
       }}
     >
-      <div className="modal-content relative w-96 max-w-full rounded-lg bg-gray-800 p-6 text-gray-100">
+      <div className="modal-shadow relative w-96 max-h-[95vh] max-w-full rounded-lg bg-black p-6 pt-[35px] text-gray-100 overflow-auto">
         {/* Close Button */}
         <button
           onClick={onClose}

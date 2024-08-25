@@ -11,7 +11,7 @@ import Loader from "@/components/Loader";
 import Card from "@/components/Card";
 
 const MyTasks: React.FC = () => {
-  const { data: tasks, isLoading } = api.task.getMyTasks.useQuery();
+  const { data: tasks = [], isLoading } = api.task.getMyTasks.useQuery();
   const utils = api.useContext();
   const [taskStatuses, setTaskStatuses] = useState<
     Record<string, Task["status"]>
@@ -30,10 +30,6 @@ const MyTasks: React.FC = () => {
         You must be logged in to view your tasks.
       </div>
     );
-  }
-
-  if (!tasks || tasks.length === 0) {
-    return <div className="text-gray-100">No tasks assigned to you.</div>;
   }
 
   const sortedTasks = [...tasks].sort((a, b) => {
@@ -70,41 +66,51 @@ const MyTasks: React.FC = () => {
     <div className="flex h-screen bg-black text-gray-100">
       <Sidebar />
       {isUpdatingTasks && <Loader />}
-      <main className="mt-5 h-full flex-1 overflow-auto p-6 md:mt-0">
+      <main className="mt-[30px] h-full flex-1 overflow-auto p-4 md:p-6 md:mt-0">
         <Card title="My Tasks">
-          <div className="flex flex-col w-full gap-2 mt-2">
-            {sortedTasks.map((task) => (
-              <Card
-              >
-                <h2 className="text-xl font-semibold text-gray-200">
-                  {task.project.name}
-                </h2>
-                <div className="mt-2 flex items-center justify-between">
-                  <h3 className="text-lg font-medium">{task.title}</h3>
-                  <Dropdown
-                    label="Status"
-                    options={[
-                      { value: "ToDo", label: "To Do" },
-                      { value: "InProgress", label: "In Progress" },
-                      { value: "Completed", label: "Completed" },
-                    ]}
-                    value={taskStatuses[task.id] || task.status}
-                    onChange={(newStatus) =>
-                      handleStatusChange(task.id, newStatus as Task["status"])
-                    }
-                  />
-                </div>
-                <p className="mt-2 text-gray-300">
-                  {task.description || "No description"}
-                </p>
-                {task.priority && (
-                  <p>
-                    Priority:{" "}
-                    <span className="font-semibold">{task.priority}</span>
-                  </p>
-                )}
-              </Card>
-            ))}
+          <div className="mt-2 flex w-full flex-col gap-2">
+            {sortedTasks.length == 0 ? (
+              <p className="w-full text-center text-sm text-gray-400">
+                No any tasks assigned for you.
+              </p>
+            ) : (
+              <>
+                {sortedTasks.map((task) => (
+                  <Card>
+                    <h2 className="text-xl font-semibold text-gray-200">
+                      {task.project.name}
+                    </h2>
+                    <div className="mt-2 flex items-center justify-between">
+                      <h3 className="text-lg font-medium">{task.title}</h3>
+                      <Dropdown
+                        label="Status"
+                        options={[
+                          { value: "ToDo", label: "To Do" },
+                          { value: "InProgress", label: "In Progress" },
+                          { value: "Completed", label: "Completed" },
+                        ]}
+                        value={taskStatuses[task.id] || task.status}
+                        onChange={(newStatus) =>
+                          handleStatusChange(
+                            task.id,
+                            newStatus as Task["status"],
+                          )
+                        }
+                      />
+                    </div>
+                    <p className="mt-2 text-gray-300">
+                      {task.description || "No description"}
+                    </p>
+                    {task.priority && (
+                      <p>
+                        Priority:{" "}
+                        <span className="font-semibold">{task.priority}</span>
+                      </p>
+                    )}
+                  </Card>
+                ))}
+              </>
+            )}
           </div>
         </Card>
       </main>

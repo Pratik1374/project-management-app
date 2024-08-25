@@ -3,6 +3,8 @@ import { api } from "@/utils/api";
 import { useEffect, useState } from "react";
 import InputComponent from "./InputCompoent";
 import Loader from "./Loader";
+import { toast } from "react-toastify";
+import TextareaComponent from "./TextareaComponent";
 
 interface EditProjectFormProps {
   projectId: string;
@@ -35,7 +37,7 @@ const EditProjectForm: React.FC<EditProjectFormProps> = ({
     api.project.updateProject.useMutation({
       onSuccess: () => {
         onProjectUpdate();
-        alert("Project updated successfully!");
+        toast.success("Project updated successfully!");
       },
     });
 
@@ -49,7 +51,7 @@ const EditProjectForm: React.FC<EditProjectFormProps> = ({
       });
     } catch (error) {
       console.error("Error updating project:", error);
-      alert("Error updating project. Please try again.");
+      toast.error("Error updating project. Please try again.");
     }
   };
 
@@ -72,9 +74,8 @@ const EditProjectForm: React.FC<EditProjectFormProps> = ({
         onChange={(e) => setName(e.target.value)}
         required
       />
-      <InputComponent
+      <TextareaComponent
         id="description"
-        type="text"
         label="Project Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}

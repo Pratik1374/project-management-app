@@ -34,7 +34,7 @@ const NewProject: React.FC = () => {
   return (
     <div className="flex h-screen flex-1 bg-black text-gray-100">
       <Sidebar />
-      <main className="mt-5 h-full flex-1 overflow-auto p-6 md:mt-0">
+      <main className="mt-[30px] h-full flex-1 overflow-auto p-4 md:p-6 md:mt-0">
         <div className="mx-auto max-w-[600px]">
           <h2 className="mb-6 w-fit text-2xl font-bold">
             Create a New Project

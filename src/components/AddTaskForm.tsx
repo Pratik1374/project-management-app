@@ -2,6 +2,8 @@ import { api } from "@/utils/api";
 import { useState } from "react";
 import InputComponent from "./InputCompoent";
 import Dropdown from "./Dropdown";
+import { toast } from "react-toastify";
+import TextareaComponent from "./TextareaComponent";
 
 interface AddTaskFormProps {
   projectId: string;
@@ -34,7 +36,7 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ({
       onSuccess: () => {
         onTaskAdded();
         onClose();
-        alert("Task added successfully!");
+        toast.success("Task added successfully!");
       },
     });
 
@@ -61,9 +63,8 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ({
         onChange={(e) => setTitle(e.target.value)}
         required
       />
-      <InputComponent
+      <TextareaComponent
         id="description"
-        type="text"
         label="Task Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}

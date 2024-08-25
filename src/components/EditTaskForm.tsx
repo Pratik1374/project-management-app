@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { api } from "@/utils/api";
 import Dropdown from "./Dropdown";
 import InputComponent from "./InputCompoent";
+import { toast } from "react-toastify";
+import TextareaComponent from "./TextareaComponent";
 
 type TaskPriority = "High" | "Medium" | "Low";
 
@@ -20,6 +22,7 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
   const {
     data: initialTask,
     isPending,
+    refetch: refetchTask
   } = api.task.getTaskById.useQuery(
     { taskId },
     {
@@ -53,9 +56,10 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
   const { mutate: updateTask, isPending: isUpdatingTask } =
     api.task.updateTask.useMutation({
       onSuccess: () => {
+        refetchTask()
         onClose();
         onTaskUpdate();
-        alert("Task updated successfully!");
+        toast.success("Task updated successfully!");
       },
     });
 
@@ -109,9 +113,8 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
         required
       />
 
-      <InputComponent
+      <TextareaComponent
         id="editTaskDescription"
-        type="text"
         label="Task Description"
         value={editedTaskDescription}
         onChange={(e) => setEditedTaskDescription(e.target.value)}
