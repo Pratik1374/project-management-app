@@ -4,12 +4,15 @@ import { api } from "@/utils/api";
 import Sidebar from "@/components/Sidebar";
 import InputComponent from "@/components/InputCompoent";
 import TextareaComponent from "@/components/TextareaComponent";
+import { useUser } from "@/utils/auth";
+import Card from "@/components/Card";
 
 const NewProject: React.FC = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const { user: authUser, isLoading } = useUser();
 
   const createProjectMutation = api.project.createProject.useMutation({
     onSuccess: (data) => {
@@ -31,14 +34,17 @@ const NewProject: React.FC = () => {
     } catch (err) {}
   };
 
+  if (!authUser) {
+    router.push("/login");
+    return <></>;
+  }
+
   return (
-    <div className="flex h-screen flex-1 bg-black text-gray-100">
+    <div className="flex h-screen flex-1 bg-transparent text-gray-100">
       <Sidebar />
       <main className="mt-[30px] h-full flex-1 overflow-auto p-4 md:p-6 md:mt-0">
         <div className="mx-auto max-w-[600px]">
-          <h2 className="mb-6 w-fit text-2xl font-bold">
-            Create a New Project
-          </h2>
+          <Card title="Create a New Project">
           <form onSubmit={handleSubmit} className="space-y-4 text-black">
             <InputComponent
               label="Project Name"
@@ -65,6 +71,7 @@ const NewProject: React.FC = () => {
                 : "Create Project"}
             </button>
           </form>
+          </Card>
         </div>
       </main>
     </div>

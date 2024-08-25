@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { type Task } from "@prisma/client";
 import Dropdown from "@/components/Dropdown";
@@ -9,9 +9,14 @@ import { api } from "@/utils/api";
 import { useUser } from "@/utils/auth";
 import Loader from "@/components/Loader";
 import Card from "@/components/Card";
+import { useRouter } from "next/router";
+
+type TaskPriority = "High" | "Medium" | "Low";
+type TaskStatus = "ToDo" | "InProgress" | "Completed";
 
 const MyTasks: React.FC = () => {
-  const { data: tasks = [], isLoading } = api.task.getMyTasks.useQuery();
+  const { data: tasks = [], isPending: isLoading } =
+    api.task.getMyTasks.useQuery();
   const utils = api.useContext();
   const [taskStatuses, setTaskStatuses] = useState<
     Record<string, Task["status"]>
@@ -19,28 +24,29 @@ const MyTasks: React.FC = () => {
   const { mutate, isPending: isUpdatingTasks } =
     api.task.updateTaskStatus.useMutation();
   const userId = useUser()?.user?.id;
+  const router = useRouter();
+
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+
+  const handleEditClick = (taskId: string) => {
+    setEditingTaskId(taskId);
+  };
+
+  const handleDropdownChange = (newStatus: Task["status"]) => {
+    if (editingTaskId) {
+      handleStatusChange(editingTaskId, newStatus);
+      setEditingTaskId(null);
+    }
+  };
 
   if (isLoading) {
     return <Loader />;
   }
 
   if (!userId) {
-    return (
-      <div className="text-gray-100">
-        You must be logged in to view your tasks.
-      </div>
-    );
+    router.push("/login");
+    return <></>;
   }
-
-  const sortedTasks = [...tasks].sort((a, b) => {
-    if (a.project.ownerId === userId && b.project.ownerId !== userId) {
-      return -1;
-    } else if (a.project.ownerId !== userId && b.project.ownerId === userId) {
-      return 1;
-    } else {
-      return a.project.name.localeCompare(b.project.name);
-    }
-  });
 
   const handleStatusChange = async (
     taskId: string,
@@ -62,56 +68,230 @@ const MyTasks: React.FC = () => {
     }
   };
 
+  const [sortBy, setSortBy] = useState<string>("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortedTasks, setSortedTasks] = useState<Task[]>(tasks || []);
+
+  useEffect(() => {
+    const sortTasks = () => {
+      const sorted = [...(tasks || [])].sort((a, b) => {
+        let comparison = 0;
+
+        if (sortBy === "priority") {
+          const priorityOrder: Record<TaskPriority | "Low", number> = {
+            High: 3,
+            Medium: 2,
+            Low: 1,
+          };
+          comparison =
+            (priorityOrder[(a.priority as TaskPriority) || "Low"] || 0) -
+            (priorityOrder[(b.priority as TaskPriority) || "Low"] || 0);
+        } else if (sortBy === "status") {
+          comparison = a.status.localeCompare(b.status);
+        } else if (sortBy === "dueDate") {
+          comparison =
+            (a.dueDate ? a.dueDate.getTime() : 0) -
+            (b.dueDate ? b.dueDate.getTime() : 0);
+        } else if (sortBy === "createdAt") {
+          comparison = a.createdAt.getTime() - b.createdAt.getTime();
+        }
+
+        return sortOrder === "asc" ? comparison : -comparison;
+      });
+
+      setSortedTasks(sorted);
+    };
+
+    sortTasks();
+  }, [tasks, sortBy, sortOrder]);
+
+  const handleSortChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+  };
+
+  const handleSortOrderChange = () => {
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
   return (
-    <div className="flex h-screen bg-black text-gray-100">
+    <div className="flex h-screen bg-transparent text-gray-100">
       <Sidebar />
       {isUpdatingTasks && <Loader />}
-      <main className="mt-[30px] h-full flex-1 overflow-auto p-4 md:p-6 md:mt-0">
-        <Card title="My Tasks">
-          <div className="mt-2 flex w-full flex-col gap-2">
-            {sortedTasks.length == 0 ? (
-              <p className="w-full text-center text-sm text-gray-400">
-                No any tasks assigned for you.
-              </p>
-            ) : (
-              <>
-                {sortedTasks.map((task) => (
-                  <Card>
-                    <h2 className="text-xl font-semibold text-gray-200">
-                      {task.project.name}
-                    </h2>
-                    <div className="mt-2 flex items-center justify-between">
-                      <h3 className="text-lg font-medium">{task.title}</h3>
-                      <Dropdown
-                        label="Status"
-                        options={[
-                          { value: "ToDo", label: "To Do" },
-                          { value: "InProgress", label: "In Progress" },
-                          { value: "Completed", label: "Completed" },
-                        ]}
-                        value={taskStatuses[task.id] || task.status}
-                        onChange={(newStatus) =>
-                          handleStatusChange(
-                            task.id,
-                            newStatus as Task["status"],
-                          )
-                        }
-                      />
-                    </div>
-                    <p className="mt-2 text-gray-300">
-                      {task.description || "No description"}
-                    </p>
-                    {task.priority && (
-                      <p>
-                        Priority:{" "}
-                        <span className="font-semibold">{task.priority}</span>
-                      </p>
-                    )}
-                  </Card>
-                ))}
-              </>
-            )}
+      <main className="mt-[30px] h-full flex-1 overflow-auto p-4 md:mt-0 md:p-6">
+        <Card>
+          <div className="flex w-full items-center justify-start gap-2">
+            <h2 className="card-title">Tasks</h2>
+            <div className="flex w-fit items-center justify-center gap-2">
+              <div className="w-[150px]">
+                <Dropdown
+                  label=""
+                  value={sortBy}
+                  onChange={handleSortChange}
+                  options={[
+                    { value: "priority", label: "Priority" },
+                    { value: "status", label: "Status" },
+                    { value: "dueDate", label: "Due Date" },
+                    { value: "createdAt", label: "Created At" },
+                  ]}
+                />
+              </div>
+              <button
+                onClick={handleSortOrderChange}
+                className="flex items-center justify-center"
+              >
+                <p>{sortOrder === "asc" ? "▲" : "▼"}</p>
+                <p className="text-[8px] text-gray-400 md:text-[10px]">
+                  Toggle Order
+                </p>
+              </button>
+            </div>
           </div>
+          {sortedTasks?.length == 0 ? (
+            <p className="w-full text-center text-[12px] text-gray-400 md:text-[14px]">
+              No any tasks assigned for you.
+            </p>
+          ) : (
+            <ul className="my-4 list-disc gap-[10px]">
+              {sortedTasks?.map((task) => (
+                <li key={task.id} className="w-full space-y-1">
+                  <Card key={`task_${task.id}`} shadow={false} border>
+                    <div className="flex w-full items-start justify-between">
+                      <div className="flex w-full flex-col gap-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="text-[13px] font-bold md:text-[15px]">
+                            {task.title}
+                          </h3>
+                        </div>
+                        <div className="flex w-full flex-col gap-[2px]">
+                          <p className="text-[12px] text-gray-300 md:text-[14px]">
+                            Description:{" "}
+                          </p>
+                          <p className="w-full overflow-y-hidden overflow-x-clip rounded-md bg-gray-900 p-2 text-[12px] md:text-[14px]">
+                            {task.description || "No description"}
+                          </p>
+                        </div>
+                        {task.priority && (
+                          <div className="flex items-center gap-1 text-[12px] md:text-[14px]">
+                            <p>Priority:</p>
+                            <span
+                              className={`rounded-md px-2 py-1 font-semibold text-white ${
+                                task.priority === "High"
+                                  ? "bg-red-500"
+                                  : task.priority === "Medium"
+                                    ? "bg-yellow-400"
+                                    : "bg-violet-400"
+                              }`}
+                            >
+                              {task.priority}
+                            </span>
+                          </div>
+                        )}
+                        {task.status && (
+                          <div className="flex w-full items-center gap-1 text-[12px] md:text-[14px]">
+                            <p>Status:</p>
+                            {editingTaskId === task.id ? (
+                              <div className="flex w-full max-w-[150px] items-center">
+                                <Dropdown
+                                  label=""
+                                  value={taskStatuses[task.id] || task.status}
+                                  onChange={handleDropdownChange}
+                                  options={[
+                                    { value: "ToDo", label: "ToDo" },
+                                    {
+                                      value: "InProgress",
+                                      label: "InProgress",
+                                    },
+                                    { value: "Completed", label: "Completed" },
+                                  ]}
+                                />
+                                <button
+                                  onClick={() => setEditingTaskId(null)}
+                                  className="ml-2"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="h-4 w-4 text-gray-400 hover:text-gray-100"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M6 18L18 6M6 6l12 12"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <span
+                                  className={`rounded-md px-2 py-1 font-semibold text-white ${
+                                    task.status === "ToDo"
+                                      ? "bg-gray-400"
+                                      : task.status === "InProgress"
+                                        ? "bg-blue-500"
+                                        : "bg-green-500"
+                                  }`}
+                                >
+                                  {taskStatuses[task.id] || task.status}
+                                </span>
+                                <button
+                                  onClick={() => handleEditClick(task.id)}
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="ml-2 h-4 w-4 text-gray-400 hover:text-gray-100"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.813-1.621a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125m-1.687 1.688l-1.687 1.688"
+                                    />
+                                  </svg>
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
+                        <p className="w-full text-right text-[10px] text-gray-400 md:text-[12px]">
+                          {task.dueDate ? (
+                            <>
+                              <span
+                                className={`${
+                                  new Date(task.dueDate).getTime() <
+                                    new Date().setHours(0, 0, 0, 0) &&
+                                  "line-through"
+                                }`}
+                              >
+                                Due Date:{" "}
+                                {new Date(task.dueDate).toLocaleDateString()}
+                              </span>
+                              <>
+                                {new Date(task.dueDate).getTime() <
+                                new Date().setHours(0, 0, 0, 0) ? (
+                                  <span className="ml-1 text-red-500">Due</span>
+                                ) : (
+                                  <></>
+                                )}
+                              </>
+                            </>
+                          ) : (
+                            "Due Date: Not set"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
       </main>
     </div>

@@ -11,7 +11,7 @@ const Card: React.FC<CardProps> = ({ title, children, shadow = true, border = fa
   return (
     <div className={`card ${shadow && "card-shadow"} ${border && "card-border"}`}>
       {title && <h2 className="card-title">{title}</h2>}
-      <div>{children}</div>
+      <div className="mt-2">{children}</div>
     </div>
   );
 };

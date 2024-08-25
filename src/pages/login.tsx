@@ -1,6 +1,15 @@
+import { useUser } from "@/utils/auth";
 import LoginForm from "../components/Auth/LoginForm";
+import { useRouter } from "next/router";
 
 export default function LoginPage() {
+  const { user } = useUser();
+  const router = useRouter();
+
+  if(user) {
+    router.push("/dashboard");
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
       <div className="w-full max-w-md">

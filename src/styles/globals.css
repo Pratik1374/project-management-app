@@ -17,6 +17,7 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: "Your Font", sans-serif;
+  box-sizing: border-box;
 }
 
 input:-webkit-autofill,
@@ -63,7 +64,6 @@ input:-webkit-autofill:active {
   font-size: 20px;
   line-height: 100%;
   font-weight: 400;
-  margin-bottom: 10px;
 }
 
 .modal-shadow {
@@ -77,14 +77,15 @@ input:-webkit-autofill:active {
   align-items: center;
   justify-content: center;
   padding: 10px 20px;
-  background-color: rgb(209, 3, 255);
+  background: transparent;
+  border: 1px solid rgb(209, 3, 255);
   border-radius: 10px;
   color: white;
   min-width: fit-content;
 }
 
 .add-button:hover {
-  background-color: rgb(221, 107, 247);
+  background-color: rgb(209, 3, 255);
 }
 
 .edit-button {

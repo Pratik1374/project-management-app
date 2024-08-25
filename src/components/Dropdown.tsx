@@ -38,7 +38,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   }, []);
 
   return (
-    <div className="relative inline-block w-full" ref={dropdownRef}>
+    <div className="relative inline-block w-full text-[12px] md:text-[14px]" ref={dropdownRef}>
       <label
         htmlFor={label}
         className="mb-1 block text-sm font-medium text-gray-100"
@@ -65,7 +65,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         </svg>
       </button>
       <ul
-        className={`absolute z-10 mt-1 w-full divide-y divide-gray-600 rounded-md bg-gray-700 shadow-lg max-h-[150px] overflow-auto ${
+        className={`absolute z-10 mt-1 w-full divide-y divide-gray-600 rounded-md bg-gray-700 shadow-lg max-h-[180px] overflow-auto ${
           isOpen ? "block" : "hidden"
         }`}
       >

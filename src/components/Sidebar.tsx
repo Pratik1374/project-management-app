@@ -76,7 +76,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <>
-      <div className="absolute left-2 top-2 z-50 h-fit w-fit bg-transparent md:hidden">
+      <div className="fixed left-2 top-2 z-50 h-fit w-fit bg-transparent md:hidden">
         <button onClick={() => setIsOpen(true)} className="text-white">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -195,7 +195,7 @@ const Sidebar: React.FC = () => {
                 signOut({ redirect: true, callbackUrl: "/" });
                 router.push("/");
               }}
-              className="mt-8 w-full rounded-md bg-red-800 px-4 py-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+              className="mt-8 w-full rounded-md bg-gray-800 px-4 py-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
             >
               Logout
             </button>
