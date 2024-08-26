@@ -1,29 +1,79 @@
-# Create T3 App
+# Project Management App 🚀
+A robust and intuitive web application for individuals and teams to effortlessly manage projects, tasks, and collaborate effectively. 
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+## ✨ Features
 
-## What's next? How do I make an app with this?
+- **Project Management**
+    - Create and organize projects with names, descriptions, deadlines, and team members.
+    - Divide projects into smaller, actionable tasks.
+    - Assign tasks to team members with clear roles for accountability.
+    - Set deadlines and track project timelines visually. 
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **Task Management**
+    - Manage tasks efficiently with customizable statuses (To Do, In Progress, Completed).
+    - Set due dates for individual tasks and never miss a deadline.
+    - Prioritize tasks (High, Medium, Low) for focused work.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+- **Future Enhancements** 
+    - Real-time collaboration with task comments and discussions.
+    - Notifications to stay updated on task assignments, changes, and deadlines.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## 🚀 Getting Started
 
-## Learn More
+### 📦 Prerequisites
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+- **Node.js:** Version 14 or higher ([https://nodejs.org/](https://nodejs.org/))
+- **npm or yarn:** Package manager of your choice.
+- **PostgreSQL:** For the application database ([https://www.postgresql.org/](https://www.postgresql.org/))
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+### 💻 Installation
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Pratik1374/project-management-app-using-t3-stack.git
+   cd project-management-app
+Use code with caution.
+Markdown
+Install dependencies:
+npm install  # Or yarn install
+Use code with caution.
+Bash
+Set up environment variables:
+Create a .env.local file in the project root.
+Add your database connection string and NextAuth.js secret:
+DATABASE_URL="postgresql://user:password@host:port/database"
+NEXTAUTH_SECRET="your_secret_key"
+DIRECT_URL=""
+Use code with caution.
+Apply database migrations:
+npx prisma db push
+Use code with caution.
+Bash
+▶️ Running the App
+Development Mode:
+npm run dev
+Use code with caution.
+Bash
+This will start the development server at http://localhost:3000.
+Production Mode:
+npm run build
+npm run start
+Use code with caution.
+Bash
+This will build the application for production and start the production server.
 
-## How do I deploy this?
+Bash
+🚀 Deployment
+(Provide detailed, step-by-step deployment instructions for your chosen platform, e.g., Vercel, Netlify, AWS)
+If using Vercel:
+Push your code to GitHub.
+Import the project into Vercel.
+Configure environment variables on Vercel.
+Deploy!
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+Submit a pull request!
+🙏 Acknowledgements
+Thanks to the creators and maintainers of Next.js, React, TypeScript, Tailwind CSS, tRPC, Prisma, and NextAuth.js.
+Inspiration from other amazing project management tools.
+
+Let me know if you have any other questions.
