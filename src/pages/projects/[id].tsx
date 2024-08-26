@@ -24,6 +24,21 @@ const ProjectDetails: React.FC = () => {
   const router = useRouter();
   const { user: authUser, isLoading } = useUser();
   const { id: projectId } = router.query;
+
+  // State variables
+  const [isEditingTask, setIsEditingTask] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [isEditingProject, setIsEditingProject] = useState(false);
+  const [isAddingTaskModalOpen, setIsAddingTaskModalOpen] = useState(false);
+  const [isAddingMemberModalOpen, setIsAddingMemberModalOpen] =
+    useState(false);
+  const [isDeletingMember, setIsDeletingMember] = useState("");
+  const [isDeletingTask, setIsDeletingTask] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string>("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortedTasks, setSortedTasks] = useState<Task[]>([]);
+
+  // API Queries
   const {
     data: project,
     isLoading: isProjectLoading,
@@ -36,6 +51,7 @@ const ProjectDetails: React.FC = () => {
       retry: false,
     },
   );
+
   const {
     data: tasks,
     isLoading: isTasksLoading,
@@ -48,6 +64,7 @@ const ProjectDetails: React.FC = () => {
       retry: false,
     },
   );
+
   const {
     data: members,
     isLoading: isMembersLoading,
@@ -61,24 +78,44 @@ const ProjectDetails: React.FC = () => {
     },
   );
 
-  const [isEditingTask, setIsEditingTask] = useState(false);
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  // API Mutations
+  const { mutateAsync: removeMemberMutation } =
+    api.project.removeMember.useMutation();
+
+  const { mutate: deleteTasksByAssignedUserMutation } =
+    api.task.deleteTasksByAssignedUser.useMutation({
+      onSuccess: () => {
+        refetchMembers();
+        refetchTasks();
+        toast.success("Member removed successfully!");
+      },
+    });
+
+  const { mutateAsync: deleteTaskMutation } = api.task.deleteTask.useMutation({
+    onSuccess: () => {
+      refetchTasks();
+      toast.success("Task deleted successfully!");
+    },
+    onError: (error) => {
+      console.error("Error deleting task:", error);
+      toast.error("Error deleting task. Please try again.");
+    },
+  });
+
+  // Handlers
   const handleEditTask = (taskId: string) => {
     setEditingTaskId(taskId);
     setIsEditingTask(true);
   };
 
-  const [isEditingProject, setIsEditingProject] = useState(false);
   const handleEditProject = () => {
     setIsEditingProject(true);
   };
 
-  const [isAddingTaskModalOpen, setIsAddingTaskModalOpen] = useState(false);
   const handleOpenAddTaskModal = () => {
     setIsAddingTaskModalOpen(true);
   };
 
-  const [isAddingMemberModalOpen, setIsAddingMemberModalOpen] = useState(false);
   const handleOpenAddMemberModal = () => {
     setIsAddingMemberModalOpen(true);
   };
@@ -90,18 +127,6 @@ const ProjectDetails: React.FC = () => {
     setIsAddingTaskModalOpen(false);
     setIsAddingMemberModalOpen(false);
   };
-
-  const { mutateAsync: removeMemberMutation } =
-    api.project.removeMember.useMutation();
-  const { mutate: deleteTasksByAssignedUserMutation } =
-    api.task.deleteTasksByAssignedUser.useMutation({
-      onSuccess: () => {
-        refetchMembers();
-        refetchTasks();
-        toast.success("Member removed successfully!");
-      },
-    });
-  const [isDeletingMember, setIsDeletingMember] = useState("");
 
   const handleRemoveMember = async (memberId: string) => {
     if (projectId) {
@@ -131,19 +156,6 @@ const ProjectDetails: React.FC = () => {
     }
   };
 
-  const { mutateAsync: deleteTaskMutation } = api.task.deleteTask.useMutation({
-    onSuccess: () => {
-      refetchTasks();
-      toast.success("Task deleted successfully!");
-    },
-    onError: (error) => {
-      console.error("Error deleting task:", error);
-      toast.error("Error deleting task. Please try again.");
-    },
-  });
-
-  const [isDeletingTask, setIsDeletingTask] = useState<string | null>(null);
-
   const handleDeleteTask = async (taskId: string) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this task?",
@@ -158,11 +170,15 @@ const ProjectDetails: React.FC = () => {
     }
   };
 
-  const [sortBy, setSortBy] = useState<string>("createdAt"); // Initial sorting
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [sortedTasks, setSortedTasks] = useState<Task[]>(tasks || []);
+  const handleSortChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+  };
 
-  // Apply sorting whenever tasks or sorting criteria change
+  const handleSortOrderChange = () => {
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+  // Sort tasks whenever tasks or sorting criteria change
   useEffect(() => {
     const sortTasks = () => {
       const sorted = [...(tasks || [])].sort((a, b) => {
@@ -196,14 +212,7 @@ const ProjectDetails: React.FC = () => {
     sortTasks();
   }, [tasks, sortBy, sortOrder]);
 
-  const handleSortChange = (newSortBy: string) => {
-    setSortBy(newSortBy);
-  };
-
-  const handleSortOrderChange = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-  };
-
+  // Loading and authentication checks
   if (isProjectLoading || isTasksLoading || isMembersLoading) {
     return <Loader />;
   }
@@ -220,6 +229,7 @@ const ProjectDetails: React.FC = () => {
     router.push("/login");
     return <></>;
   }
+
   return (
     <div className="flex h-screen bg-transparent text-gray-100">
       <Sidebar />

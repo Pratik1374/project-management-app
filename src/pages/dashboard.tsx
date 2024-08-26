@@ -16,15 +16,6 @@ export default function DashboardPage() {
   const { user, isLoading } = useUser();
   const router = useRouter();
 
-  if (isLoading || statsLoading) {
-    return <Loader />;
-  }
-
-  if (!user) {
-    router.push("/login");
-    return <></>;
-  }
-
   const {
     totalProjects,
     totalTasks = 0,
@@ -36,6 +27,15 @@ export default function DashboardPage() {
   const completedTasksPercentage =
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
+  if (isLoading || statsLoading) {
+    return <Loader />;
+  }
+
+  if (!user) {
+    router.push("/login");
+    return <></>;
+  }
+
   return (
     <div className="flex h-screen bg-transparent text-gray-100">
       <Sidebar />
@@ -44,7 +44,7 @@ export default function DashboardPage() {
           Welcome, {user.name || user.email}!
         </h1>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 text-[12px] md:text-[14px]">
+        <div className="grid grid-cols-1 gap-6 text-[12px] md:grid-cols-2 md:text-[14px]">
           {/* Stats Card */}
           <Card title="Overall Stats">
             <div className="flex flex-col gap-4">
@@ -52,13 +52,13 @@ export default function DashboardPage() {
               <StatItem label="Total Tasks" value={totalTasks || 0} />
               <div>
                 <p className="text-gray-400">Completed Tasks</p>
-                <div className="h-2.5 w-full rounded-full bg-gray-700 mt-2">
+                <div className="mt-2 h-2.5 w-full rounded-full bg-gray-700">
                   <div
                     className="h-2.5 rounded-full bg-green-500"
                     style={{ width: `${completedTasksPercentage}%` }}
                   ></div>
                 </div>
-                <p className="text-sm text-gray-300 mt-1">
+                <p className="mt-1 text-sm text-gray-300">
                   {completedTasksPercentage}% complete
                 </p>
               </div>

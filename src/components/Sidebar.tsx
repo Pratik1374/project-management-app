@@ -11,6 +11,9 @@ const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   const sidebarRef = useRef<HTMLElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const { user } = useUser();
+
   const { data: projects, refetch } = api.project.getProjects.useQuery(
     undefined,
     {
@@ -18,34 +21,10 @@ const Sidebar: React.FC = () => {
       retry: false,
     },
   );
-  const [isOpen, setIsOpen] = useState(false);
-  const { user } = useUser();
 
   const closeSidebar = () => {
     setIsOpen(false);
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isOpen &&
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target as Node)
-      ) {
-        closeSidebar();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
 
   const { mutate: deleteProject, isPending: isDeleting } =
     api.project.deleteProject.useMutation({
@@ -74,6 +53,28 @@ const Sidebar: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isOpen &&
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node)
+      ) {
+        closeSidebar();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
     <>
       <div className="fixed left-2 top-2 z-50 h-fit w-fit bg-transparent md:hidden">
@@ -98,7 +99,7 @@ const Sidebar: React.FC = () => {
       <div className="md:w-64">
         <aside
           ref={sidebarRef}
-          className={`fixed left-0 top-0 z-40 h-screen transform border-0 border-r border-solid border-gray-400 bg-black text-[12px] text-white transition-transform duration-300 ease-in-out md:relative md:text-[14px] ${
+          className={`fixed left-0 top-0 z-50 h-screen max-w-[250px] transform border-0 border-r border-solid border-gray-400 bg-black text-[12px] text-white transition-transform duration-300 ease-in-out md:relative md:text-[14px] ${
             isOpen ? "translate-x-0" : "-translate-x-full"
           } md:translate-x-0`}
         >
@@ -106,13 +107,13 @@ const Sidebar: React.FC = () => {
             <div className="mb-6 flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 md:h-10 md:w-10 rounded-full border border-gray-200 text-gray-200"
+                className="h-6 w-6 rounded-full border border-gray-200 text-gray-200 md:h-10 md:w-10"
                 viewBox="0 0 24 24"
                 fill="currentColor"
               >
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-3.33 0-6 2.69-6 6v1h12v-1c0-3.31-2.67-6-6-6z" />
               </svg>
-              <span className="ml-3 text-[14px] md:text-lg font-medium">
+              <span className="ml-3 text-[14px] font-medium md:text-lg">
                 {user?.name || "User"}
               </span>
             </div>
@@ -157,7 +158,7 @@ const Sidebar: React.FC = () => {
                       <li key={project.id} className="relative">
                         <Link
                           href={`/projects/${project.id}`}
-                          className={`block rounded-md px-2 py-1 hover:bg-gray-700 ${
+                          className={`block rounded-md px-2 py-1 pr-6 hover:bg-gray-700 ${
                             pathname === `/projects/${project.id}`
                               ? "bg-gray-800"
                               : ""

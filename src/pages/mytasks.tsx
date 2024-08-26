@@ -17,7 +17,7 @@ type TaskStatus = "ToDo" | "InProgress" | "Completed";
 const MyTasks: React.FC = () => {
   const { data: tasks = [], isPending: isLoading } =
     api.task.getMyTasks.useQuery();
-  const utils = api.useContext();
+  const utils = api.useUtils();
   const [taskStatuses, setTaskStatuses] = useState<
     Record<string, Task["status"]>
   >({});
@@ -27,6 +27,9 @@ const MyTasks: React.FC = () => {
   const router = useRouter();
 
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string>("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortedTasks, setSortedTasks] = useState<Task[]>(tasks || []);
 
   const handleEditClick = (taskId: string) => {
     setEditingTaskId(taskId);
@@ -38,15 +41,6 @@ const MyTasks: React.FC = () => {
       setEditingTaskId(null);
     }
   };
-
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  if (!userId) {
-    router.push("/login");
-    return <></>;
-  }
 
   const handleStatusChange = async (
     taskId: string,
@@ -67,10 +61,6 @@ const MyTasks: React.FC = () => {
       console.error("Error updating task status:", error);
     }
   };
-
-  const [sortBy, setSortBy] = useState<string>("createdAt");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [sortedTasks, setSortedTasks] = useState<Task[]>(tasks || []);
 
   useEffect(() => {
     const sortTasks = () => {
@@ -113,6 +103,15 @@ const MyTasks: React.FC = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (!userId) {
+    router.push("/login");
+    return <></>;
+  }
+
   return (
     <div className="flex h-screen bg-transparent text-gray-100">
       <Sidebar />
@@ -121,7 +120,7 @@ const MyTasks: React.FC = () => {
         <Card>
           <div className="flex w-full items-center justify-start gap-2">
             <h2 className="card-title">Tasks</h2>
-            <div className="flex w-fit items-center justify-center gap-2">
+            <div className="flex flex-1 items-center justify-center gap-2">
               <div className="w-[150px]">
                 <Dropdown
                   label=""
@@ -147,7 +146,7 @@ const MyTasks: React.FC = () => {
             </div>
           </div>
           {sortedTasks?.length == 0 ? (
-            <p className="w-full text-center text-[12px] text-gray-400 md:text-[14px]">
+            <p className="mt-2 w-full text-center text-[12px] text-gray-400 md:text-[14px]">
               No any tasks assigned for you.
             </p>
           ) : (
