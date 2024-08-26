@@ -103,12 +103,17 @@ const MyTasks: React.FC = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
+  useEffect(() => {
+    if(!userId) {
+      router.push("/login");
+    }
+  },[userId]);
+
   if (isLoading) {
     return <Loader />;
   }
 
   if (!userId) {
-    router.push("/login");
     return <></>;
   }
 

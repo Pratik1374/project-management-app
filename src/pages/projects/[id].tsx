@@ -212,6 +212,12 @@ const ProjectDetails: React.FC = () => {
     sortTasks();
   }, [tasks, sortBy, sortOrder]);
 
+  useEffect(() => {
+    if(!authUser) {
+      router.push("/login");
+    }
+  },[authUser]);
+
   // Loading and authentication checks
   if (isProjectLoading || isTasksLoading || isMembersLoading) {
     return <Loader />;
@@ -226,8 +232,7 @@ const ProjectDetails: React.FC = () => {
   }
 
   if (!authUser) {
-    router.push("/login");
-    return <></>;
+    return <Loader/>;
   }
 
   return (

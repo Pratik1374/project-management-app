@@ -7,6 +7,7 @@ import { useUser } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import Card from "@/components/Card";
 import PieChart from "@/components/PieChart";
+import { useEffect } from "react";
 
 export default function DashboardPage() {
   const { data: stats, isLoading: statsLoading } =
@@ -15,6 +16,12 @@ export default function DashboardPage() {
     });
   const { user, isLoading } = useUser();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user]);
 
   const {
     totalProjects,
@@ -32,8 +39,7 @@ export default function DashboardPage() {
   }
 
   if (!user) {
-    router.push("/login");
-    return <></>;
+    return <Loader/>;
   }
 
   return (

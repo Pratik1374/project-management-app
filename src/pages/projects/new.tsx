@@ -1,4 +1,5 @@
-import { useState } from "react";
+"use client"
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { api } from "@/utils/api";
 import Sidebar from "@/components/Sidebar";
@@ -34,8 +35,13 @@ const NewProject: React.FC = () => {
     } catch (err) {}
   };
 
+  useEffect(() => {
+    if(!authUser) {
+      router.push("/login");
+    }
+  },[authUser]);
+
   if (!authUser) {
-    router.push("/login");
     return <></>;
   }
 

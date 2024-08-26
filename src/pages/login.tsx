@@ -1,14 +1,9 @@
-import { useUser } from "@/utils/auth";
 import LoginForm from "../components/Auth/LoginForm";
-import { useRouter } from "next/router";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
+import { getSession } from "next-auth/react";
 
 export default function LoginPage() {
-  const { user } = useUser();
-  const router = useRouter();
-
-  if(user) {
-    router.push("/dashboard");
-  }
+  
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
@@ -23,3 +18,20 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
+  const session = await getSession(context);
+
+  if (session) {
+    return {
+      redirect: {
+        destination: '/dashboard',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+};
