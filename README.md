@@ -38,23 +38,31 @@ npm install  # Or yarn install
 ### Set up environment variables:
 ### Create a .env.local file in the project root.
 ### Add your database connection string and NextAuth.js secret:
+```bash
 DATABASE_URL="postgresql://user:password@host:port/database"
 NEXTAUTH_SECRET="your_secret_key"
 DIRECT_URL=""
+```
 
 ### Apply database migrations:
+```bash
 npx prisma db push
+```
 
 ### Running the App
 
 ### Development Mode:
+```bash
 npm run dev
+```
 
 ### This will start the development server at http://localhost:3000.
 
 ### Production Mode:
+```bash
 npm run build
 npm run start
+```
 
 ### This will build the application for production and start the production server.
 
